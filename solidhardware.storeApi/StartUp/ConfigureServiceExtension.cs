@@ -1,5 +1,17 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using solidhardware.storeCore.Domain.IdentityEntites;
+using solidhardware.storeCore.DTO;
+using solidhardware.storeCore.DTO.AuthenticationDTO;
+using solidhardware.storeCore.Service;
+using solidhardware.storeCore.ServiceContract;
+using solidhardware.storeinfrastraction.Data;
 using System;
+using System.Text;
 
 namespace solidhardware.storeApi.StartUp
 {
@@ -7,13 +19,13 @@ namespace solidhardware.storeApi.StartUp
     {
         public static IServiceCollection ServiceConfiguration(this IServiceCollection Services, IConfiguration Configuration)
         {
-           /* Services.AddDbContext<AppDbContext>(options =>
+            Services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("connstr") ??
                 throw new InvalidOperationException("Connection string 'connstr' not found."));
-            });*/
+            });
 
-           /* Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
+            Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {
                 options.Password.RequireNonAlphanumeric = true;
                 options.Password.RequireDigit = false;
@@ -63,13 +75,14 @@ namespace solidhardware.storeApi.StartUp
             Services.Configure<JwtDTO>(Configuration.GetSection("JWT"));
             Services.Configure<MailSettings>(Configuration.GetSection("MailSettings"));
             Services.AddTransient<IMailingService, MailingService>();
-
-   */
-
+            Services.AddScoped<IAuthenticationService, AuthenticationService>(); 
 
 
 
-          //  Services.AddAutoMapper(typeof(EmployeeConfig).Assembly);
+
+
+
+            //  Services.AddAutoMapper(typeof(EmployeeConfig).Assembly);
             Services.AddEndpointsApiExplorer();
             Services.AddSwaggerGen(c =>
             {
