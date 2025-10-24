@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Domain\IRepositoryContract\" />
     <Folder Include="MappingProfile\" />
   </ItemGroup>
 

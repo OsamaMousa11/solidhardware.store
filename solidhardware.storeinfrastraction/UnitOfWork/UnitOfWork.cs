@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace solidhardware.storeCore.Domain.Entites
+namespace solidhardware.storeinfrastraction.UnitOfWork
 {
-    internal class Monitor
+    internal class UnitOfWork
     {
     }
 }

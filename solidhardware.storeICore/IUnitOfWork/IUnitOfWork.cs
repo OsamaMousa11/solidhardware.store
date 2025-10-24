@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace solidhardware.storeCore.Domain.Entites
+namespace solidhardware.storeCore.IUnitOfWork
 {
-    internal class matherboard
+    internal interface IUnitOfWork
     {
     }
 }
