@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace solidhardware.storeCore.DTO
+namespace solidhardware.storeCore.DTO.AuthenticationDTO
 {
     public class RegisterDTO
     {

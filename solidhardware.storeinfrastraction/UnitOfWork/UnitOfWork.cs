@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 using solidhardware.storeCore.Domain.IRepositoryContract;
-using solidhardware.storeCore.IUnitOfWork;
+using solidhardware.storeCore.IUnitofWork;
 using solidhardware.storeinfrastraction.Data;
 using solidhardware.storeinfrastraction.Repositories;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,14 +25,13 @@ namespace solidhardware.storeinfrastraction.UnitOfWork
 
         public IGenericRepository<T> Repository<T>() where T : class
         {
-            if (_repositories.ContainsKey(typeof(T)))
+            if (!_repositories.TryGetValue(typeof(T), out var repo))
             {
-                return _repositories[typeof(T)] as IGenericRepository<T>;
+                repo = new GenricRepository<T>(_db);
+                _repositories[typeof(T)] = repo;
             }
-            var repository = new GenricRepository<T>(_db);
-            _repositories.Add(typeof(T), repository);
 
-            return repository;
+            return (IGenericRepository<T>)repo;
         }
         public async Task<IDbContextTransaction> BeginTransactionAsync() => await _db.Database.BeginTransactionAsync();
         public async Task CommitTransactionAsync() => await _db.Database.CommitTransactionAsync();

@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using solidhardware.storeCore.Domain.IdentityEntites;
-using solidhardware.storeCore.DTO;
 using solidhardware.storeCore.DTO.AuthenticationDTO;
 using solidhardware.storeCore.Enumuration;
 using solidhardware.storeCore.ServiceContract;

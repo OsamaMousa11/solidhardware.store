@@ -1,9 +1,11 @@
-﻿using solidhardware.storeCore.Domain.Entites;
+﻿using Microsoft.EntityFrameworkCore;
+using solidhardware.storeCore.Domain.Entites;
 using solidhardware.storeCore.Domain.IRepositoryContract;
 using solidhardware.storeinfrastraction.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,6 +18,9 @@ namespace solidhardware.storeinfrastraction.Repositories
         {
             _db = db;
         }
+
+      
+
         public async Task<Category> UpdateAsync(Category category)
         {
             var CategoryToUpadate = _db.Categories.FirstOrDefault(b => b.Id == category.Id);

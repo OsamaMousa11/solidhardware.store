@@ -1,5 +1,4 @@
 ﻿using solidhardware.storeCore.Domain.IdentityEntites;
-using solidhardware.storeCore.DTO;
 using solidhardware.storeCore.DTO.AuthenticationDTO;
 using System;
 using System.Collections.Generic;

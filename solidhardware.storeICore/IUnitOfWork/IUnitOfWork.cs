@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace solidhardware.storeCore.IUnitOfWork
+namespace solidhardware.storeCore.IUnitofWork
 {
     public interface IUnitOfWork:IDisposable
     {

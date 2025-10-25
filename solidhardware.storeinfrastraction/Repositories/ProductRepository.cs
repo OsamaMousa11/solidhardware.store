@@ -1,11 +1,10 @@
-﻿using solidhardware.storeCore.Domain.Entites;
+﻿using Microsoft.EntityFrameworkCore;
+using solidhardware.storeCore.Domain.Entites;
 using solidhardware.storeCore.Domain.IRepositoryContract;
 using solidhardware.storeinfrastraction.Data;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace solidhardware.storeinfrastraction.Repositories
 {
@@ -17,7 +16,6 @@ namespace solidhardware.storeinfrastraction.Repositories
             _db = db;
         }
 
-     
 
         public async Task<Product> UpdateAsync(Product product)
         {
@@ -27,6 +25,7 @@ namespace solidhardware.storeinfrastraction.Repositories
             _db.Entry(ProductToUpadate).CurrentValues.SetValues(product);
             await SaveAsync();
             return ProductToUpadate;
+            
 
 
         }

@@ -5,11 +5,15 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using solidhardware.storeCore.Domain.IdentityEntites;
-using solidhardware.storeCore.DTO;
+using solidhardware.storeCore.Domain.IRepositoryContract;
 using solidhardware.storeCore.DTO.AuthenticationDTO;
+using solidhardware.storeCore.IUnitofWork;
 using solidhardware.storeCore.Service;
 using solidhardware.storeCore.ServiceContract;
+
 using solidhardware.storeinfrastraction.Data;
+using solidhardware.storeinfrastraction.Repositories;
+using solidhardware.storeinfrastraction.UnitOfWork;
 using System;
 using System.Text;
 
@@ -75,7 +79,11 @@ namespace solidhardware.storeApi.StartUp
             Services.Configure<JwtDTO>(Configuration.GetSection("JWT"));
             Services.Configure<MailSettings>(Configuration.GetSection("MailSettings"));
             Services.AddTransient<IMailingService, MailingService>();
-            Services.AddScoped<IAuthenticationService, AuthenticationService>(); 
+            Services.AddScoped<IAuthenticationService, AuthenticationService>();
+            Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            Services.AddScoped(typeof(IGenericRepository<>), typeof(GenricRepository<>));
+            Services.AddScoped<ICategoryService, CategoryService>();
+            Services.AddScoped<IProductService,ProductService>();
 
 
 

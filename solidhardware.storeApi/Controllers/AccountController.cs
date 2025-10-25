@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using solidhardware.storeCore.Domain.IdentityEntites;
-using solidhardware.storeCore.DTO;
 using solidhardware.storeCore.DTO.AuthenticationDTO;
 using solidhardware.storeCore.ServiceContract;
 

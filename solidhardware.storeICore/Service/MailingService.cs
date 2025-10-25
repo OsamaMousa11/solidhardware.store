@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Options;
 using MimeKit;
-using solidhardware.storeCore.DTO;
 using solidhardware.storeCore.ServiceContract;
 
 
 using Microsoft.AspNetCore.Http;
 using SmtpClient = MailKit.Net.Smtp.SmtpClient;
+using solidhardware.storeCore.DTO.AuthenticationDTO;
 
 
 
