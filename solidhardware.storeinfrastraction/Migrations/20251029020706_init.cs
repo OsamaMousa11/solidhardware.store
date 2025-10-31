@@ -70,8 +70,7 @@ namespace solidhardware.storeinfrastraction.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -375,33 +374,11 @@ namespace solidhardware.storeinfrastraction.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SSD_Capacity = table.Column<int>(type: "int", nullable: true),
-                    CapacityUnit = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SSD_Type = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Case_Power_Supply = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Fans_Cooling = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Color = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
-                    CPU_Chip = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CPU_Series = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    VRAMSize = table.Column<int>(type: "int", nullable: true),
-                    VRAMUnit = table.Column<string>(type: "nvarchar(max)", nullable: true, defaultValue: "GB"),
-                    HDD_Capacity = table.Column<int>(type: "int", nullable: true),
-                    Motherboard_Chipset = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CPU_Socket = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RAM_Type = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Capacity = table.Column<int>(type: "int", nullable: true),
-                    ModuleCount = table.Column<int>(type: "int", nullable: true),
-                    Speed = table.Column<int>(type: "int", nullable: true),
-                    SpeedUnit = table.Column<string>(type: "nvarchar(max)", nullable: true, defaultValue: "MHz"),
-                    PanelType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RefreshRate = table.Column<int>(type: "int", nullable: true),
-                    RefreshRate_Unit = table.Column<string>(type: "nvarchar(max)", nullable: true, defaultValue: "Hz"),
-                    Resolution = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ResponseTime = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    ResponseTimeUnit = table.Column<string>(type: "nvarchar(max)", nullable: true, defaultValue: "ms"),
-                    ScreenSize = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    ScreenSizeUnit = table.Column<string>(type: "nvarchar(max)", nullable: true, defaultValue: "Inch"),
-                    PSU_Wattage = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true)
+                    Key = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Size = table.Column<int>(type: "int", nullable: true),
+                    Unit = table.Column<string>(type: "nvarchar(5)", maxLength: 5, nullable: true),
+                    DisplayOrder = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -557,8 +534,7 @@ namespace solidhardware.storeinfrastraction.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_ProductSpecialProperties_ProductId",
                 table: "ProductSpecialProperties",
-                column: "ProductId",
-                unique: true);
+                column: "ProductId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reviews_prouductId",

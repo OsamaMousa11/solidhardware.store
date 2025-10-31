@@ -38,7 +38,7 @@ namespace solidhardware.storeinfrastraction.Repositories
                 throw new ArgumentNullException(nameof(model));
 
             await _dbSet.AddAsync(model);
-            await SaveAsync();
+
             return model;
         }
 

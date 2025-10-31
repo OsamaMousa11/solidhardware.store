@@ -17,15 +17,15 @@ namespace solidhardware.storeCore.Service
 {
     public class CategoryService : ICategoryService
     {
-        private readonly ICategoryService _ICategoryService;
+     
         private readonly ILogger<CategoryService> _logger;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ICategoryRepository _categoryRepository;
 
-        public CategoryService(ICategoryService iCategoryService, ILogger<CategoryService> logge, IUnitOfWork unitOfWork, IMapper mapper , ICategoryRepository categoryRepository)
+        public CategoryService(ILogger<CategoryService> logge, IUnitOfWork unitOfWork, IMapper mapper , ICategoryRepository categoryRepository)
         {
-            _ICategoryService = iCategoryService;
+       
             _logger = logge;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -122,7 +122,8 @@ namespace solidhardware.storeCore.Service
             _logger.LogInformation("Fetching genre with predicate: {Predicate}", predicate);
 
     
-            var category = await _unitOfWork.Repository<Category>().GetByAsync(predicate, IsTracked);
+            var category = await _unitOfWork.Repository<Category>()
+                .GetByAsync(predicate, IsTracked, includeProperties: "Category,ProductSpecialProperty");
            if(category == null)
             {
                 _logger.LogWarning("Category not found with the given predicate: {Predicate}", predicate);

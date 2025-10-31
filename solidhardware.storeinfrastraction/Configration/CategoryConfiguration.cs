@@ -15,8 +15,7 @@ namespace solidhardware.storeinfrastraction.Configration
             builder.HasKey(c => c.Id);
             builder.Property(c => c.Id).ValueGeneratedNever();
             builder.Property(c => c.Name).IsRequired().HasMaxLength(50);
-            builder.Property(c => c.Description).HasMaxLength(200);
-
+       
         }
     }
 }

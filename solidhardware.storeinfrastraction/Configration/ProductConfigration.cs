@@ -8,33 +8,31 @@ namespace solidhardware.storeinfrastraction.Configration
     {
         public void Configure(EntityTypeBuilder<Product> builder)
         {
-            // 🔹 Table & Primary Key
+            
             builder.HasKey(p => p.Id);
             builder.Property(p => p.Id)
                    .ValueGeneratedNever();
 
-            // 🔹 Basic Properties
             builder.Property(p => p.Name)
                    .IsRequired()
-                   .HasMaxLength(150);
+                   .HasMaxLength(200);
 
             builder.Property(p => p.Description)
                    .HasMaxLength(1000);
 
             builder.Property(p => p.Price)
-                   .HasPrecision(18, 2) // مهم لتجنب التحذير
+                   .HasPrecision(18, 2) 
                    .IsRequired();
 
             builder.Property(p => p.Stock_quantity)
                    .IsRequired();
 
-            builder.Property(p => p.ImageUrl)
+            builder.Property(p => p.ImageUrl).IsRequired()
                    .HasMaxLength(300);
 
-            builder.Property(p => p.Brand)
+            builder.Property(p => p.Brand).IsRequired()
                    .HasMaxLength(100);
 
-            // 🔹 Relationships
 
             // Product → Category (Many-to-One)
             builder.HasOne(p => p.Category)
@@ -42,11 +40,6 @@ namespace solidhardware.storeinfrastraction.Configration
                    .HasForeignKey(p => p.CategoryId)
                    .OnDelete(DeleteBehavior.Cascade);
 
-            // Product → ProductSpecialProperty (One-to-One)
-            builder.HasOne(p => p.ProductSpecialProperty)
-                   .WithOne(psp => psp.Product)
-                   .HasForeignKey<ProductSpecialProperty>(psp => psp.ProductId)
-                   .OnDelete(DeleteBehavior.Cascade);
 
             // Product → BundleItems (One-to-Many)
             builder.HasMany(p => p.BundleItems)

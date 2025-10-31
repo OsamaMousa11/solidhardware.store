@@ -8,6 +8,7 @@ using solidhardware.storeCore.Domain.IdentityEntites;
 using solidhardware.storeCore.Domain.IRepositoryContract;
 using solidhardware.storeCore.DTO.AuthenticationDTO;
 using solidhardware.storeCore.IUnitofWork;
+using solidhardware.storeCore.MappingProfile;
 using solidhardware.storeCore.Service;
 using solidhardware.storeCore.ServiceContract;
 
@@ -79,28 +80,63 @@ namespace solidhardware.storeApi.StartUp
             Services.Configure<JwtDTO>(Configuration.GetSection("JWT"));
             Services.Configure<MailSettings>(Configuration.GetSection("MailSettings"));
             Services.AddTransient<IMailingService, MailingService>();
-            Services.AddScoped<IAuthenticationService, AuthenticationService>();
+            Services.AddScoped<IAuthenticationServices, AuthenticationServices>();
             Services.AddScoped<IUnitOfWork, UnitOfWork>();
             Services.AddScoped(typeof(IGenericRepository<>), typeof(GenricRepository<>));
+            Services.AddScoped<ICategoryRepository, CategoryRepository>();
             Services.AddScoped<ICategoryService, CategoryService>();
+            Services.AddScoped<IProductRepository, ProductRepository>();
             Services.AddScoped<IProductService,ProductService>();
 
 
 
 
 
-
-            //  Services.AddAutoMapper(typeof(EmployeeConfig).Assembly);
+            Services.AddControllers()
+     .AddJsonOptions(options =>
+     {
+         options.JsonSerializerOptions.ReferenceHandler =
+             System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+     });
+            Services.AddAutoMapper(typeof(CategoryConfig).Assembly);
+            Services.AddControllers();
             Services.AddEndpointsApiExplorer();
             Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
                 {
-                    Title = "Employee Management ",
+                    Title = "SolidHardware API",
                     Version = "v1",
-                    Description = "Employee Management API"
+                    Description = "SolidHardware Store API"
                 });
+
+           /*
+                c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Description = "Enter JWT token like: Bearer {your token}"
+                });
+
+                c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });*/
             });
+
 
 
             return Services;

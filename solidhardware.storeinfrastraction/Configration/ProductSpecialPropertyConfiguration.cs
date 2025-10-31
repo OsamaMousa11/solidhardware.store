@@ -10,26 +10,25 @@ namespace solidhardware.storeinfrastraction.Configration
         {
         
             builder.HasKey(p => p.Id);
-            builder.Property(p => p.Id).ValueGeneratedOnAdd();
+            builder.Property(p => p.Id).ValueGeneratedNever();
+
+            builder.Property(p => p.Key).HasMaxLength(200).IsRequired();
+      
+            builder.Property(p => p.Value).HasMaxLength(200).IsRequired();
+
+            builder.Property(p => p.Size);
+
+            builder.Property(p => p.Unit);
+
 
 
             builder.HasOne(p => p.Product)
-        .WithOne(p => p.ProductSpecialProperty)
-        .HasForeignKey<ProductSpecialProperty>(p => p.ProductId)
+        .WithMany(p => p.ProductSpecialProperty).HasForeignKey(P => P.ProductId)
+
         .OnDelete(DeleteBehavior.Cascade);
 
 
 
-            builder.Property(p => p.SSD_Type).HasMaxLength(50);
-            builder.Property(p => p.Case_Power_Supply).HasMaxLength(100);
-            builder.Property(p => p.Color).HasMaxLength(30);
-            builder.Property(p => p.PSU_Wattage).HasMaxLength(20);
-
-            builder.Property(p => p.VRAMUnit).HasDefaultValue("GB");
-            builder.Property(p => p.SpeedUnit).HasDefaultValue("MHz");
-            builder.Property(p => p.RefreshRate_Unit).HasDefaultValue("Hz");
-            builder.Property(p => p.ResponseTimeUnit).HasDefaultValue("ms");
-            builder.Property(p => p.ScreenSizeUnit).HasDefaultValue("Inch");
         }
     }
 }

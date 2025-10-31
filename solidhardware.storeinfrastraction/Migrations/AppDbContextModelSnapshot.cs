@@ -225,11 +225,6 @@ namespace solidhardware.storeinfrastraction.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -341,111 +336,34 @@ namespace solidhardware.storeinfrastraction.Migrations
             modelBuilder.Entity("solidhardware.storeCore.Domain.Entites.ProductSpecialProperty", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("CPU_Chip")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CPU_Series")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CPU_Socket")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("Capacity")
+                    b.Property<int>("DisplayOrder")
                         .HasColumnType("int");
 
-                    b.Property<string>("CapacityUnit")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Case_Power_Supply")
+                    b.Property<string>("Key")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Color")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("Fans_Cooling")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("HDD_Capacity")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ModuleCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Motherboard_Chipset")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PSU_Wattage")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("PanelType")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("RAM_Type")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("RefreshRate")
+                    b.Property<int?>("Size")
                         .HasColumnType("int");
 
-                    b.Property<string>("RefreshRate_Unit")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(max)")
-                        .HasDefaultValue("Hz");
+                    b.Property<string>("Unit")
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
 
-                    b.Property<string>("Resolution")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("ResponseTime")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("ResponseTimeUnit")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(max)")
-                        .HasDefaultValue("ms");
-
-                    b.Property<int?>("SSD_Capacity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SSD_Type")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<decimal?>("ScreenSize")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("ScreenSizeUnit")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(max)")
-                        .HasDefaultValue("Inch");
-
-                    b.Property<int?>("Speed")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SpeedUnit")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(max)")
-                        .HasDefaultValue("MHz");
-
-                    b.Property<int?>("VRAMSize")
-                        .HasColumnType("int");
-
-                    b.Property<string>("VRAMUnit")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(max)")
-                        .HasDefaultValue("GB");
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductId")
-                        .IsUnique();
+                    b.HasIndex("ProductId");
 
                     b.ToTable("ProductSpecialProperties");
                 });
@@ -761,8 +679,8 @@ namespace solidhardware.storeinfrastraction.Migrations
             modelBuilder.Entity("solidhardware.storeCore.Domain.Entites.ProductSpecialProperty", b =>
                 {
                     b.HasOne("solidhardware.storeCore.Domain.Entites.Product", "Product")
-                        .WithOne("ProductSpecialProperty")
-                        .HasForeignKey("solidhardware.storeCore.Domain.Entites.ProductSpecialProperty", "ProductId")
+                        .WithMany("ProductSpecialProperty")
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -883,8 +801,7 @@ namespace solidhardware.storeinfrastraction.Migrations
 
                     b.Navigation("OrderItems");
 
-                    b.Navigation("ProductSpecialProperty")
-                        .IsRequired();
+                    b.Navigation("ProductSpecialProperty");
 
                     b.Navigation("Reviews");
 
