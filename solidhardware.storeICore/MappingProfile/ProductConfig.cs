@@ -18,7 +18,6 @@ namespace solidhardware.storeCore.MappingProfile
             .ForMember(dest => dest.ProductSpecialProperty, opt => opt.MapFrom(src => src.SpecialProperties));
 
             CreateMap<Product, ProductResponse>()
-                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
                 .ForMember(dest => dest.SpecialProperties, opt => opt.MapFrom(src => src.ProductSpecialProperty));
 
             CreateMap<ProductSpecialPropertyAddRequest, ProductSpecialProperty>()

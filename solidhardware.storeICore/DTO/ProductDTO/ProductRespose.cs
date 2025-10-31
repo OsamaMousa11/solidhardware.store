@@ -17,9 +17,6 @@ namespace solidhardware.storeCore.DTO.ProductDTO
         public int StockQuantity { get; set; }
         public string? ImageUrl { get; set; }
         public Guid CategoryId { get; set; }
-        public string? CategoryName { get; set; }
-
-
         public List<ProductSpecialPropertyResponse>? SpecialProperties { get; set; }
     }
 }
