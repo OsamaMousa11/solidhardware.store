@@ -143,16 +143,16 @@ namespace solidhardware.storeApi.Controllers
                     IsSuccess = true,
                     Messages = "Bundle updated successfully",
                     Result = updatedBundle,
-                    StatusCode = System.Net.HttpStatusCode.OK
+                    StatusCode = HttpStatusCode.OK
                 };
                 return Ok(response);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "UpdateBundle method: An error occurred while updating Bundle");
-                return StatusCode((int)System.Net.HttpStatusCode.InternalServerError, new ApiResponse
+                return StatusCode((int)HttpStatusCode.InternalServerError, new ApiResponse
                 {
-                    StatusCode = System.Net.HttpStatusCode.InternalServerError,
+                    StatusCode = HttpStatusCode.InternalServerError,
                     IsSuccess = false,
                     Messages = "An error occurred while updating Bundle"
                 });
