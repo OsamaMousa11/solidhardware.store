@@ -10,8 +10,7 @@ namespace solidhardware.storeCore.DTO.BundleDTO
 {
     public class BundleItemAddRequest
     {
-        [Required(ErrorMessage = "BundleId  is required")]
-        public Guid BundleId { get; set; }
+      
 
         [Required(ErrorMessage = "ProductId name is required")]
         public Guid ProductId { get; set; }

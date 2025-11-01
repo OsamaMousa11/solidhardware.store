@@ -115,7 +115,7 @@ namespace solidhardware.storeCore.Service
         public  async Task<IEnumerable<BundleResponse>> GetAllAsync(int pageIndex = 1, int pageSize = 10)
         {
            _logger.LogInformation( "Fetching all bundles");
-            var bundles = await _unitOfWork.Repository<Bundle>().GetAllAsync(pageIndex: pageIndex, pageSize: pageSize,includeProperties: "BundleItems.Product.Category,BundleItems.Product.SpecialProperties");
+            var bundles = await _unitOfWork.Repository<Bundle>().GetAllAsync(pageIndex: pageIndex, pageSize: pageSize,includeProperties: "BundleItems.Product");
             if (bundles == null || !bundles.Any())
             {
                 _logger.LogInformation("No bundles found");
@@ -135,7 +135,7 @@ namespace solidhardware.storeCore.Service
          _logger.LogInformation("Fetching bundle with specified predicate");
 
             var bundles = await _unitOfWork.Repository<Bundle>().GetByAsync(
-           predicate, IsTracked, includeProperties: "BundleItems.Product.Category,BundleItems.Product.SpecialProperties");
+           predicate, IsTracked, includeProperties: "BundleItems.Product");
             if (bundles == null)
             {
                 _logger.LogWarning("No bundle found matching the specified predicate");
