@@ -223,7 +223,8 @@ namespace solidhardware.storeCore.Service
             }
         }
 
-        public async Task<ProductResponse> UpdateProduct(ProductUpdateRequest updateRequest)
+       
+            public async Task<ProductResponse> UpdateProduct(ProductUpdateRequest updateRequest)
         {
             _logger.LogInformation("UpdateProduct called");
 
@@ -248,24 +249,29 @@ namespace solidhardware.storeCore.Service
             {
                 try
                 {
-              
                     _mapper.Map(updateRequest, product);
 
-                 
+                  
                     if (updateRequest.SpecialProperties != null)
                     {
-                        if (product.ProductSpecialProperty == null)
+                        foreach (var propDto in updateRequest.SpecialProperties)
                         {
-                     
-                            var newSpecial = _mapper.Map<ProductSpecialProperty>(updateRequest.SpecialProperties);
-                            newSpecial.Id = Guid.NewGuid();
-                            newSpecial.ProductId = product.Id;
-                            await _unitOfWork.Repository<ProductSpecialProperty>().CreateAsync(newSpecial);
-                        }
-                        else
-                        {
-                      
-                            _mapper.Map(updateRequest.SpecialProperties, product.ProductSpecialProperty);
+                            var existingProp = product.ProductSpecialProperty
+                                .FirstOrDefault(p => p.Id == propDto.Id);
+
+                            if (existingProp == null)
+                            {
+                            
+                                var newProp = _mapper.Map<ProductSpecialProperty>(propDto);
+                                newProp.Id = Guid.NewGuid();
+                                newProp.ProductId = product.Id;
+                                await _unitOfWork.Repository<ProductSpecialProperty>().CreateAsync(newProp);
+                            }
+                            else
+                            {
+                              
+                                _mapper.Map(propDto, existingProp);
+                            }
                         }
                     }
 
@@ -285,8 +291,10 @@ namespace solidhardware.storeCore.Service
             }
         }
 
- 
-      
     }
-    }
+
+
+
+}
+    
 
