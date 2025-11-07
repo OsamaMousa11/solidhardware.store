@@ -10,5 +10,6 @@ namespace solidhardware.storeCore.ServiceContract
     public interface ICartService
     {
         Task<CartResponse> AddItemAsync(CartAddRequest cartAddRequest);
+        Task<CartResponse> AddItemAsync(Guid userId, Guid productId, int quantity = 1);
     }
 }

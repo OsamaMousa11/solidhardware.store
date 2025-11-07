@@ -9,6 +9,6 @@ namespace solidhardware.storeCore.Domain.IRepositoryContract
 {
     public interface IWishListRepository:IGenericRepository<Wishlist>
     {
-     
+        Task<Wishlist> UpdateWishlistAsync(Wishlist updatedWishlist);
     }
 }
