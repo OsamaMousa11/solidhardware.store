@@ -13,6 +13,7 @@ namespace solidhardware.storeCore.Domain.Entites
         public Guid UserId { get; set; }
         public ApplicationUser User { get; set; }
         public ICollection<WishlistItem> WishlistItems { get; set; }
+
     }
     }
 

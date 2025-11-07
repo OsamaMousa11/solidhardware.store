@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace solidhardware.storeCore.DTO.WishListDTO
 {
-    public class WitshListAddRequest
+    public class WishListAddRequest
     {
         [Required(ErrorMessage = "UserId  is Required ")]
         public Guid UserId { get; set; }
 
-        public ICollection<WishlistItemAddRequest>? WishlistItemAddRequest { get; set; }
+        public ICollection<WishlistItemAddRequest>? WishlistItems{ get; set; }
     } 
 }

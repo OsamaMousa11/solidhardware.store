@@ -12,7 +12,7 @@ using solidhardware.storeinfrastraction.Data;
 namespace solidhardware.storeinfrastraction.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251029020706_init")]
+    [Migration("20251105034209_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -308,7 +308,6 @@ namespace solidhardware.storeinfrastraction.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
@@ -319,8 +318,8 @@ namespace solidhardware.storeinfrastraction.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<decimal>("Price")
                         .HasPrecision(18, 2)
@@ -346,8 +345,8 @@ namespace solidhardware.storeinfrastraction.Migrations
 
                     b.Property<string>("Key")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
@@ -356,8 +355,7 @@ namespace solidhardware.storeinfrastraction.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Unit")
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Value")
                         .IsRequired()
@@ -423,11 +421,9 @@ namespace solidhardware.storeinfrastraction.Migrations
 
             modelBuilder.Entity("solidhardware.storeCore.Domain.Entites.WishlistItem", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");

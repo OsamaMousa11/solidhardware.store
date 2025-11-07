@@ -14,5 +14,6 @@ namespace solidhardware.storeCore.Domain.Entites
         public ApplicationUser User { get; set; }
 
         public ICollection<Cartitem> CartItems { get; set; }
+
     }
 }
