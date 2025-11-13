@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace solidhardware.storeinfrastraction.Repositories
 {
-    public class CartRepository : GenricRepository<Cart>, ICartReposito
+    public class CartRepository : GenricRepository<Cart>, ICartRepository
     {
         private readonly AppDbContext _db;
         public CartRepository(AppDbContext db) : base(db)

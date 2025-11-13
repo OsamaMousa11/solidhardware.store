@@ -98,7 +98,7 @@ namespace solidhardware.storeCore.Service
         /// </summary>
         public async Task<WishListResponse> AddWishlistAsync(WishListAddRequest request)
         {
-            _logger.LogInformation("Creating wishlist for user {UserId}", request?.UserId);
+            _logger.LogInformation("Creating or retrieving wishlist for user {UserId}", request?.UserId);
 
             if (request == null)
             {
@@ -109,31 +109,31 @@ namespace solidhardware.storeCore.Service
             ValidationHelper.ValidateModel(request);
 
             var existingWishlist = await _unitOfWork.Repository<Wishlist>()
-                .GetByAsync(p => p.UserId == request.UserId);
+                .GetByAsync(w => w.UserId == request.UserId, includeProperties: WISHLIST_FULL_INCLUDES);
 
             if (existingWishlist != null)
             {
-                _logger.LogWarning("Wishlist already exists for user {UserId}", request.UserId);
-                throw new InvalidOperationException("A wishlist already exists for this user");
+                _logger.LogInformation("Wishlist already exists for user {UserId}, returning existing one", request.UserId);
+                return _mapper.Map<WishListResponse>(existingWishlist);
             }
 
+   
             var wishlist = _mapper.Map<Wishlist>(request);
             wishlist.Id = Guid.NewGuid();
-        
+            wishlist.UserId = request.UserId;
+            wishlist.WishlistItems ??= new List<WishlistItem>();
 
-            if (wishlist.WishlistItems != null && wishlist.WishlistItems.Any())
+       
+            if (request.WishlistItems != null && request.WishlistItems.Any())
             {
-                var wishlistItems = request.WishlistItems
-                    .Select(item =>
+                wishlist.WishlistItems = request.WishlistItems
+                    .Select(item => new WishlistItem
                     {
-                        var mappedItem = _mapper.Map<WishlistItem>(item);
-                        mappedItem.Id = Guid.NewGuid();
-                        mappedItem.WishlistId = wishlist.Id;
-            
-                        return mappedItem;
+                        Id = Guid.NewGuid(),
+                        WishlistId = wishlist.Id,
+                        ProductId = item.ProductId
                     })
                     .ToList();
-                wishlist.WishlistItems = wishlistItems;
             }
 
             await _unitOfWork.Repository<Wishlist>().CreateAsync(wishlist);
@@ -141,17 +141,13 @@ namespace solidhardware.storeCore.Service
 
             _logger.LogInformation("Wishlist created successfully for user {UserId}", request.UserId);
 
+            
             var createdWishlist = await _unitOfWork.Repository<Wishlist>()
-                .GetByAsync(
-                    p => p.Id == wishlist.Id,
-                    includeProperties: WISHLIST_FULL_INCLUDES);
+                .GetByAsync(w => w.Id == wishlist.Id, includeProperties: WISHLIST_FULL_INCLUDES);
 
             return _mapper.Map<WishListResponse>(createdWishlist);
         }
 
-        /// <summary>
-        /// Clears all items from user's wishlist
-        /// </summary>
         public async Task<bool> ClearUserWishlistAsync(Guid userId)
         {
             _logger.LogInformation("Clearing wishlist for user {UserId}", userId);

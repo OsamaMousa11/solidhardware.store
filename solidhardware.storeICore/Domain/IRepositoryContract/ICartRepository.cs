@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace solidhardware.storeCore.Domain.IRepositoryContract
 {
-    public interface ICartReposito:IGenericRepository<Cart>
+    public interface ICartRepository:IGenericRepository<Cart>
     {
         Task<Cart> UpdateAsync(Cart cart);
     }

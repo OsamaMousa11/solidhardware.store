@@ -121,6 +121,7 @@ namespace solidhardware.storeApi.Controllers
                 }
                 return result;
             }
+
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while deleting category with ID: {CategoryId}", id);

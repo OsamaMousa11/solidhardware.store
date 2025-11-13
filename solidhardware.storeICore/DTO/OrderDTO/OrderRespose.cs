@@ -1,17 +1,16 @@
-﻿using solidhardware.storeCore.Domain.IdentityEntites;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace solidhardware.storeCore.Domain.Entites
+namespace solidhardware.storeCore.DTO.OrderDTO
 {
-    public class Order
+    internal class OrderResponse
     {
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
-        public ApplicationUser user { get; set; }
+
         public DateTime OrderDate { get; set; }
         public decimal TotalAmount { get; set; }
 
@@ -19,6 +18,8 @@ namespace solidhardware.storeCore.Domain.Entites
         public string? Country { get; set; }
         public string? Phone { get; set; }
 
-        public ICollection<OrderItem>? OrderItems { get; set; }
+        public List<OrderItemResponse>? OrderItems { get; set; } = new();
+
+        public int TotalItems => OrderItems?.Sum(i => i.Quantity) ?? 0;
     }
 }

@@ -1,25 +1,23 @@
-﻿using System;
-using System.Collections;
+﻿using solidhardware.storeCore.Domain.Entites;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace solidhardware.storeCore.DTO.CartDTO
+namespace solidhardware.storeCore.DTO.OrderDTO
 {
-    public class CartAddRequest
+    public class OrderItemAddRequest
     {
-        [Required]
-        public Guid UserId { get; set; }
 
         [Required]
         public Guid ProductId { get; set; }
-
-        [Required]
         [Range(1, 100, ErrorMessage = "Quantity must be between 1 and 100")]
         public int Quantity { get; set; } = 1;
 
-        public ICollection<CartItemAddRequest>? cartitemAddRequest { get; set; }
+        [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than zero")]
+        public decimal UnitPrice { get; set; }
+
     }
 }

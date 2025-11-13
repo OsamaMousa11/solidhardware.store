@@ -89,6 +89,8 @@ namespace solidhardware.storeApi.StartUp
             Services.AddScoped<IProductService,ProductService>();
             Services.AddScoped<IBundelRepository, BundelRepository>();
             Services.AddScoped<IBundleService, BundleService>();
+            Services.AddScoped<ICartRepository, CartRepository>();
+            Services.AddScoped<ICartService, CartService>();
 
 
 

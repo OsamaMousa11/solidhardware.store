@@ -6,28 +6,23 @@ using solidhardware.storeCore.DTO.CartDTO;
 using solidhardware.storeCore.Helper;
 using solidhardware.storeCore.IUnitofWork;
 using solidhardware.storeCore.ServiceContract;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace solidhardware.storeCore.Service
 {
     public class CartService : ICartService
     {
         private readonly IMapper _mapper;
-        private readonly ILogger<CartService> _logger; 
+        private readonly ILogger<CartService> _logger;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ICartReposito _cartRepository;
+        private readonly ICartRepository _cartRepository;
 
-        // Constants
         private const string CART_FULL_INCLUDES = "CartItems.Product.Brand,CartItems.Product.Images";
 
         public CartService(
             IMapper mapper,
             ILogger<CartService> logger,
             IUnitOfWork unitOfWork,
-            ICartReposito cartRepository) 
+            ICartRepository cartRepository)
         {
             _mapper = mapper;
             _logger = logger;
@@ -35,421 +30,291 @@ namespace solidhardware.storeCore.Service
             _cartRepository = cartRepository;
         }
 
-       
+        // ✅ Add Item
         public async Task<CartResponse> AddItemAsync(Guid userId, Guid productId, int quantity = 1)
         {
-            _logger.LogInformation(
-                "Adding product {ProductId} (qty: {Quantity}) to cart for user {UserId}",
+            _logger.LogInformation("Adding product {ProductId} (qty: {Quantity}) to cart for user {UserId}",
                 productId, quantity, userId);
 
-            // Validation
             ValidateGuid(userId, nameof(userId));
             ValidateGuid(productId, nameof(productId));
 
             if (quantity <= 0)
-            {
-                _logger.LogError("Invalid quantity: {Quantity}", quantity);
                 throw new ArgumentException("Quantity must be greater than zero", nameof(quantity));
-            }
 
-            // Get or create cart
             var cart = await _unitOfWork.Repository<Cart>()
-                .GetByAsync(
-                    c => c.UserId == userId,
-                    includeProperties: CART_FULL_INCLUDES);
+                .GetByAsync(c => c.UserId == userId, includeProperties: CART_FULL_INCLUDES);
 
             if (cart == null)
             {
-                _logger.LogInformation("Cart not found for user {UserId}, creating new one", userId);
-
                 cart = new Cart
                 {
                     Id = Guid.NewGuid(),
                     UserId = userId,
-                   
-                    CartItems = new List<Cartitem>() // ✅ Fixed
+                    CartItems = new List<Cartitem>()
                 };
 
                 await _unitOfWork.Repository<Cart>().CreateAsync(cart);
                 await _unitOfWork.CompleteAsync();
             }
 
-            // Verify product exists
             var product = await _unitOfWork.Repository<Product>()
-                .GetByAsync(p => p.Id == productId);
+                .GetByAsync(p => p.Id == productId)
+                ?? throw new KeyNotFoundException("Product not found");
 
-            if (product == null)
-            {
-                _logger.LogWarning("Product {ProductId} not found", productId);
-                throw new KeyNotFoundException("Product not found");
-            }
-
-            // Check if product already in cart
             var existingItem = cart.CartItems?.FirstOrDefault(ci => ci.ProductId == productId);
 
             if (existingItem != null)
             {
-                // Update quantity
-                _logger.LogInformation(
-                    "Product {ProductId} already in cart, updating quantity from {OldQty} to {NewQty}",
-                    productId, existingItem.Quantity, existingItem.Quantity + quantity);
-
                 existingItem.Quantity += quantity;
-
+                _logger.LogInformation("Updated quantity for product {ProductId} to {Quantity}", productId, existingItem.Quantity);
             }
             else
             {
-                // Add new item
-                var newCartItem = new Cartitem // ✅ Fixed
+                var newItem = new Cartitem
                 {
                     Id = Guid.NewGuid(),
                     ProductId = productId,
                     CartId = cart.Id,
-                    Quantity = quantity,
-                
+                    Quantity = quantity
                 };
 
-                await _unitOfWork.Repository<Cartitem>().CreateAsync(newCartItem);
-
-                _logger.LogInformation(
-                    "Added new product {ProductId} to cart for user {UserId}",
-                    productId, userId);
+                await _unitOfWork.Repository<Cartitem>().CreateAsync(newItem);
             }
-
-            // Update cart timestamp
-         
-           await   _cartRepository.UpdateAsync(cart); // ✅ Fixed
-
-            await _unitOfWork.CompleteAsync();
-
-            _logger.LogInformation("Cart updated successfully for user {UserId}", userId);
-
-            // Get updated cart with all details
-            var updatedCart = await _unitOfWork.Repository<Cart>()
-                .GetByAsync(
-                    c => c.Id == cart.Id,
-                    includeProperties: CART_FULL_INCLUDES);
-
-            return _mapper.Map<CartResponse>(updatedCart);
-        }
-
-        /// <summary>
-        /// Gets or creates cart for user
-        /// </summary>
-        public async Task<CartResponse> GetOrCreateCartAsync(Guid userId)
-        {
-            _logger.LogInformation("Getting or creating cart for user {UserId}", userId);
-
-            ValidateGuid(userId, nameof(userId));
-
-            var cart = await _unitOfWork.Repository<Cart>()
-                .GetByAsync(
-                    c => c.UserId == userId,
-                    includeProperties: CART_FULL_INCLUDES);
-
-            if (cart != null)
-            {
-                _logger.LogInformation("Cart found for user {UserId}", userId);
-                return _mapper.Map<CartResponse>(cart);
-            }
-
-            // Create new cart
-            cart = new Cart
-            {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                
-                CartItems = new List<Cartitem>()
-            };
-
-            await _unitOfWork.Repository<Cart>().CreateAsync(cart);
-            await _unitOfWork.CompleteAsync();
-
-            _logger.LogInformation("Cart created for user {UserId}", userId);
-
-            return _mapper.Map<CartResponse>(cart);
-        }
-
-        /// <summary>
-        /// Gets cart for specific user
-        /// </summary>
-        public async Task<CartResponse> GetCartByUserIdAsync(Guid userId)
-        {
-            _logger.LogInformation("Getting cart for user {UserId}", userId);
-
-            ValidateGuid(userId, nameof(userId));
-
-            var cart = await _unitOfWork.Repository<Cart>()
-                .GetByAsync(
-                    c => c.UserId == userId,
-                    includeProperties: CART_FULL_INCLUDES);
-
-            if (cart == null)
-            {
-                _logger.LogWarning("Cart not found for user {UserId}", userId);
-                throw new KeyNotFoundException("Cart not found for the user");
-            }
-
-            return _mapper.Map<CartResponse>(cart);
-        }
-
-        /// <summary>
-        /// Updates quantity of a cart item
-        /// </summary>
-        public async Task<CartResponse> UpdateItemQuantityAsync(
-            Guid userId,
-            Guid cartItemId,
-            int quantity)
-        {
-            _logger.LogInformation(
-                "Updating cart item {CartItemId} quantity to {Quantity} for user {UserId}",
-                cartItemId, quantity, userId);
-
-            ValidateGuid(userId, nameof(userId));
-            ValidateGuid(cartItemId, nameof(cartItemId));
-
-            if (quantity <= 0)
-            {
-                throw new ArgumentException("Quantity must be greater than zero", nameof(quantity));
-            }
-
-            var cart = await _unitOfWork.Repository<Cart>()
-                .GetByAsync(
-                    c => c.UserId == userId,
-                    includeProperties: "CartItems");
-
-            if (cart == null)
-            {
-                _logger.LogWarning("Cart not found for user {UserId}", userId);
-                throw new KeyNotFoundException("Cart not found for the user");
-            }
-
-            var cartItem = cart.CartItems?.FirstOrDefault(ci => ci.Id == cartItemId);
-
-            if (cartItem == null)
-            {
-                _logger.LogWarning("Cart item {CartItemId} not found", cartItemId);
-                throw new KeyNotFoundException("Cart item not found");
-            }
-
-            cartItem.Quantity = quantity;
-          
-
-     
-
-            await  _cartRepository.UpdateAsync(cart);
-
-            await _unitOfWork.CompleteAsync();
-
-            _logger.LogInformation("Cart item {CartItemId} quantity updated successfully", cartItemId);
-
-            // Get updated cart
-            var updatedCart = await _unitOfWork.Repository<Cart>()
-                .GetByAsync(
-                    c => c.Id == cart.Id,
-                    includeProperties: CART_FULL_INCLUDES);
-
-            return _mapper.Map<CartResponse>(updatedCart);
-        }
-
-        /// <summary>
-        /// Removes an item from cart
-        /// </summary>
-        public async Task<bool> RemoveItemAsync(Guid userId, Guid cartItemId)
-        {
-            _logger.LogInformation(
-                "Removing cart item {CartItemId} for user {UserId}",
-                cartItemId, userId);
-
-            ValidateGuid(userId, nameof(userId));
-            ValidateGuid(cartItemId, nameof(cartItemId));
-
-            var cart = await _unitOfWork.Repository<Cart>()
-                .GetByAsync(
-                    c => c.UserId == userId,
-                    includeProperties: "CartItems");
-
-            if (cart == null)
-            {
-                _logger.LogWarning("Cart not found for user {UserId}", userId);
-                throw new KeyNotFoundException("Cart not found for the user");
-            }
-
-            var cartItem = cart.CartItems?.FirstOrDefault(ci => ci.Id == cartItemId);
-
-            if (cartItem == null)
-            {
-                _logger.LogWarning("Cart item {CartItemId} not found", cartItemId);
-                throw new KeyNotFoundException("Cart item not found");
-            }
-
-            await _unitOfWork.Repository<Cartitem>().DeleteAsync(cartItem);
-
 
             await _cartRepository.UpdateAsync(cart);
-
             await _unitOfWork.CompleteAsync();
 
-            _logger.LogInformation("Cart item {CartItemId} removed successfully", cartItemId);
+            var updatedCart = await _unitOfWork.Repository<Cart>()
+                .GetByAsync(c => c.Id == cart.Id, includeProperties: CART_FULL_INCLUDES);
+
+            return _mapper.Map<CartResponse>(updatedCart);
+        }
+
+        // ✅ Add Cart
+        public async Task<CartResponse> AddCartAsync(CartAddRequest request)
+        {
+            _logger.LogInformation("Creating cart for user {UserId}", request?.UserId);
+
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
+            ValidationHelper.ValidateModel(request);
+
+            var existingCart = await _unitOfWork.Repository<Cart>()
+                .GetByAsync(c => c.UserId == request.UserId, includeProperties: CART_FULL_INCLUDES);
+
+            if (existingCart != null)
+                return _mapper.Map<CartResponse>(existingCart);
+
+            using var transaction = await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                var cart = _mapper.Map<Cart>(request);
+                cart.Id = Guid.NewGuid();
+                cart.UserId = request.UserId;
+                cart.CartItems ??= new List<Cartitem>();
+
+                if (request.cartitemAddRequest != null && request.cartitemAddRequest.Any())
+                {
+                    cart.CartItems = request.cartitemAddRequest.Select(i => new Cartitem
+                    {
+                        Id = Guid.NewGuid(),
+                        CartId = cart.Id,
+                        ProductId = i.ProductId,
+                        Quantity = i.Quantity
+                    }).ToList();
+                }
+                else
+                {
+                    // fallback to single item
+                    cart.CartItems.Add(new Cartitem
+                    {
+                        Id = Guid.NewGuid(),
+                        CartId = cart.Id,
+                        ProductId = request.ProductId,
+                        Quantity = request.Quantity
+                    });
+                }
+
+                await _unitOfWork.Repository<Cart>().CreateAsync(cart);
+                await _unitOfWork.CompleteAsync();
+                await transaction.CommitAsync();
+
+                var createdCart = await _unitOfWork.Repository<Cart>()
+                    .GetByAsync(c => c.Id == cart.Id, includeProperties: CART_FULL_INCLUDES);
+
+                return _mapper.Map<CartResponse>(createdCart);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Failed to create cart for user {UserId}", request.UserId);
+                throw;
+            }
+        }
+
+        // ✅ Update Quantity
+        public async Task<CartResponse> UpdateItemQuantityAsync(CartUpdateRequest request)
+        {
+            _logger.LogInformation("Updating product {ProductId} quantity to {Quantity} for user {UserId}",
+                request.ProductId, request.Quantity, request.UserId);
+
+            ValidateGuid(request.UserId, nameof(request.UserId));
+            ValidateGuid(request.ProductId, nameof(request.ProductId));
+
+            var cart = await _unitOfWork.Repository<Cart>()
+                .GetByAsync(c => c.UserId == request.UserId, includeProperties: "CartItems.Product")
+                ?? throw new KeyNotFoundException("Cart not found");
+
+            var item = cart.CartItems?.FirstOrDefault(ci => ci.ProductId == request.ProductId)
+                ?? throw new KeyNotFoundException("Item not found in cart");
+
+            item.Quantity = request.Quantity;
+
+            await _cartRepository.UpdateAsync(cart);
+            await _unitOfWork.CompleteAsync();
+
+            var updated = await _unitOfWork.Repository<Cart>()
+                .GetByAsync(c => c.Id == cart.Id, includeProperties: CART_FULL_INCLUDES);
+
+            return _mapper.Map<CartResponse>(updated);
+        }
+
+        // ✅ Remove Item
+        public async Task<bool> RemoveItemAsync(Guid userId, Guid cartItemId)
+        {
+            _logger.LogInformation("Removing cart item {CartItemId} for user {UserId}", cartItemId, userId);
+
+            var cart = await _unitOfWork.Repository<Cart>()
+                .GetByAsync(c => c.UserId == userId, includeProperties: "CartItems")
+                ?? throw new KeyNotFoundException("Cart not found");
+
+            var item = cart.CartItems?.FirstOrDefault(i => i.Id == cartItemId)
+                ?? throw new KeyNotFoundException("Item not found in cart");
+
+            await _unitOfWork.Repository<Cartitem>().DeleteAsync(item);
+            await _cartRepository.UpdateAsync(cart);
+            await _unitOfWork.CompleteAsync();
 
             return true;
         }
 
-        /// <summary>
-        /// Clears all items from cart
-        /// </summary>
+        // ✅ Get or Create Cart
+        public async Task<CartResponse> GetOrCreateCartAsync(Guid userId)
+        {
+            _logger.LogInformation("Getting or creating cart for user {UserId}", userId);
+            ValidateGuid(userId, nameof(userId));
+
+            var cart = await _unitOfWork.Repository<Cart>()
+                .GetByAsync(c => c.UserId == userId, includeProperties: CART_FULL_INCLUDES);
+
+            if (cart != null)
+                return _mapper.Map<CartResponse>(cart);
+
+            var newCart = new Cart
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                CartItems = new List<Cartitem>()
+            };
+
+            await _unitOfWork.Repository<Cart>().CreateAsync(newCart);
+            await _unitOfWork.CompleteAsync();
+
+            return _mapper.Map<CartResponse>(newCart);
+        }
+
+        // ✅ Get Cart by UserId
+        public async Task<CartResponse> GetCartByUserIdAsync(Guid userId)
+        {
+            _logger.LogInformation("Fetching cart for user {UserId}", userId);
+
+            var cart = await _unitOfWork.Repository<Cart>()
+                .GetByAsync(c => c.UserId == userId, includeProperties: CART_FULL_INCLUDES)
+                ?? throw new KeyNotFoundException("Cart not found for user");
+
+            return _mapper.Map<CartResponse>(cart);
+        }
+
+        // ✅ Get Cart by Id
+        public async Task<CartResponse> GetCartByIdAsync(Guid cartId)
+        {
+            _logger.LogInformation("Fetching cart with ID {CartId}", cartId);
+
+            var cart = await _unitOfWork.Repository<Cart>()
+                .GetByAsync(c => c.Id == cartId, includeProperties: CART_FULL_INCLUDES)
+                ?? throw new KeyNotFoundException("Cart not found");
+
+            return _mapper.Map<CartResponse>(cart);
+        }
+
+        // ✅ Get All Cart Items
+        public async Task<List<CartItemResponse>> GetCartItemsAsync(Guid userId)
+        {
+            _logger.LogInformation("Fetching cart items for user {UserId}", userId);
+
+            var cart = await _unitOfWork.Repository<Cart>()
+                .GetByAsync(c => c.UserId == userId, includeProperties: CART_FULL_INCLUDES)
+                ?? throw new KeyNotFoundException("Cart not found");
+
+            if (cart.CartItems == null || !cart.CartItems.Any())
+                return new List<CartItemResponse>();
+
+            return _mapper.Map<List<CartItemResponse>>(cart.CartItems);
+        }
+
+        // ✅ Clear Cart
         public async Task<bool> ClearCartAsync(Guid userId)
         {
             _logger.LogInformation("Clearing cart for user {UserId}", userId);
 
-            ValidateGuid(userId, nameof(userId));
-
             var cart = await _unitOfWork.Repository<Cart>()
-                .GetByAsync(
-                    c => c.UserId == userId,
-                    includeProperties: "CartItems");
+                .GetByAsync(c => c.UserId == userId, includeProperties: "CartItems");
 
-            if (cart == null)
-            {
-                _logger.LogWarning("Cart not found for user {UserId}", userId);
-                throw new KeyNotFoundException("Cart not found for the user");
-            }
+            if (cart == null) throw new KeyNotFoundException("Cart not found");
+            if (!cart.CartItems.Any()) return true;
 
-            if (cart.CartItems == null || !cart.CartItems.Any())
-            {
-                _logger.LogInformation("Cart is already empty for user {UserId}", userId);
-                return true;
-            }
+            await _unitOfWork.Repository<Cartitem>().RemoveRangeAsync(cart.CartItems);
+            await _cartRepository.UpdateAsync(cart);
+            await _unitOfWork.CompleteAsync();
 
-            using (var transaction = await _unitOfWork.BeginTransactionAsync())
-            {
-                try
-                {
-                    var itemCount = cart.CartItems.Count;
-
-                    await _unitOfWork.Repository<Cartitem>()
-                        .RemoveRangeAsync(cart.CartItems);
-
-
-                    await _cartRepository.UpdateAsync(cart);
-
-                    await _unitOfWork.CompleteAsync();
-                    await transaction.CommitAsync();
-
-                    _logger.LogInformation(
-                        "Cart cleared successfully for user {UserId}, removed {ItemCount} items",
-                        userId, itemCount);
-
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-                    _logger.LogError(ex, "Error clearing cart for user {UserId}", userId);
-                    throw;
-                }
-            }
+            return true;
         }
 
-        /// <summary>
-        /// Checks if product exists in user's cart
-        /// </summary>
-        public async Task<bool> IsProductInCartAsync(Guid userId, Guid productId)
-        {
-            _logger.LogInformation(
-                "Checking if product {ProductId} is in cart for user {UserId}",
-                productId, userId);
-
-            ValidateGuid(userId, nameof(userId));
-            ValidateGuid(productId, nameof(productId));
-
-            var cart = await _unitOfWork.Repository<Cart>()
-                .GetByAsync(
-                    c => c.UserId == userId,
-                    includeProperties: "CartItems");
-
-            if (cart == null)
-            {
-                return false;
-            }
-
-            var exists = cart.CartItems?.Any(ci => ci.ProductId == productId) ?? false;
-
-            _logger.LogInformation(
-                "Product {ProductId} is {Status} in cart for user {UserId}",
-                productId, exists ? "present" : "not present", userId);
-
-            return exists;
-        }
-
-        /// <summary>
-        /// Gets cart item count for user
-        /// </summary>
-        public async Task<int> GetCartItemCountAsync(Guid userId)
-        {
-            _logger.LogInformation("Getting cart item count for user {UserId}", userId);
-
-            ValidateGuid(userId, nameof(userId));
-
-            var cart = await _unitOfWork.Repository<Cart>()
-                .GetByAsync(
-                    c => c.UserId == userId,
-                    includeProperties: "CartItems");
-
-            if (cart == null || cart.CartItems == null)
-            {
-                return 0;
-            }
-
-            // Sum all quantities
-            var count = cart.CartItems.Sum(ci => ci.Quantity);
-
-            _logger.LogInformation("User {UserId} has {ItemCount} items in cart", userId, count);
-
-            return count;
-        }
-
-        /// <summary>
-        /// Gets total cart value
-        /// </summary>
+        // ✅ Total Value
         public async Task<decimal> GetCartTotalAsync(Guid userId)
         {
-            _logger.LogInformation("Getting cart total for user {UserId}", userId);
-
-            ValidateGuid(userId, nameof(userId));
-
             var cart = await _unitOfWork.Repository<Cart>()
-                .GetByAsync(
-                    c => c.UserId == userId,
-                    includeProperties: CART_FULL_INCLUDES);
+                .GetByAsync(c => c.UserId == userId, includeProperties: CART_FULL_INCLUDES);
 
-            if (cart == null || cart.CartItems == null || !cart.CartItems.Any())
-            {
-                _logger.LogInformation("Cart is empty for user {UserId}", userId);
-                return 0;
-            }
-
-            var total = cart.CartItems
-                .Where(ci => ci.Product != null)
-                .Sum(ci => ci.Quantity * ci.Product.Price);
-
-            _logger.LogInformation("Cart total for user {UserId} is {Total}", userId, total);
-
-            return total;
+            return cart?.CartItems?.Sum(ci => ci.Quantity * ci.Product.Price) ?? 0;
         }
 
-        private void ValidateGuid(Guid id, string paramName)
+        // ✅ Item Count
+        public async Task<int> GetCartItemCountAsync(Guid userId)
+        {
+            var cart = await _unitOfWork.Repository<Cart>()
+                .GetByAsync(c => c.UserId == userId, includeProperties: "CartItems");
+
+            return cart?.CartItems?.Sum(ci => ci.Quantity) ?? 0;
+        }
+
+        // ✅ Check if Product Exists
+        public async Task<bool> IsProductInCartAsync(Guid userId, Guid productId)
+        {
+            var cart = await _unitOfWork.Repository<Cart>()
+                .GetByAsync(c => c.UserId == userId, includeProperties: "CartItems");
+
+            return cart?.CartItems?.Any(ci => ci.ProductId == productId) ?? false;
+        }
+
+        // ✅ Helper
+        private void ValidateGuid(Guid id, string name)
         {
             if (id == Guid.Empty)
-            {
-                _logger.LogError("{ParamName} cannot be empty", paramName);
-                throw new ArgumentException($"{paramName} cannot be empty", paramName);
-            }
-        }
-
-        public Task<CartResponse> AddItemAsync(CartAddRequest cartAddRequest)
-        {
-            throw new NotImplementedException();
+                throw new ArgumentException($"{name} cannot be empty", name);
         }
     }
 }
