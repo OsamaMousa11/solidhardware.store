@@ -16,6 +16,6 @@ namespace solidhardware.storeCore.DTO.WishListDTO
 
         public Guid ProductId{ get; set; }
 
-        public ICollection<WishlistItemAddRequest>? WishlistItems{ get; set; }
+      
     } 
 }

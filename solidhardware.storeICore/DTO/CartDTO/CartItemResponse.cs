@@ -1,5 +1,4 @@
-﻿using solidhardware.storeCore.DTO.ProductDTO;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,9 +10,13 @@ namespace solidhardware.storeCore.DTO.CartDTO
     {
         public Guid Id { get; set; }
         public Guid ProductId { get; set; }
+
+        public string ProductName { get; set; }
+        public string? ImageUrl { get; set; }
+
         public int Quantity { get; set; }
-        public DateTime AddedAt { get; set; }
-        public ProductResponse Product { get; set; }
-        public decimal SubTotal { get; set; }
+        public decimal UnitPrice { get; set; }
+
+        public decimal Total => Quantity * UnitPrice;
     }
 }

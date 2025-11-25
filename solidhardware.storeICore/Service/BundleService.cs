@@ -16,38 +16,38 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 namespace solidhardware.storeCore.Service
 {
-    public class BundleService: IBundleService
+    public class BundleService : IBundleService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<BundleService> _logger;
         private readonly IMapper _mapper;
         private readonly IBundelRepository _BundleRepository;
 
-        public BundleService(IUnitOfWork unitOfWork , ILogger<BundleService> logger , IBundelRepository BundleRepository , IMapper mapper)
+        public BundleService(IUnitOfWork unitOfWork, ILogger<BundleService> logger, IBundelRepository BundleRepository, IMapper mapper)
         {
-            _BundleRepository =BundleRepository;
-            _logger=logger;
-            _unitOfWork=unitOfWork;
-            _mapper=mapper;
+            _BundleRepository = BundleRepository;
+            _logger = logger;
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
 
         }
 
-        public  async Task<BundleResponse> CreateAsync(BundleAddRequest Bundeladdrequest)
+        public async Task<BundleResponse> CreateAsync(BundleAddRequest Bundeladdrequest)
         {
             _logger.LogInformation("Creating a new bundle");
-            if(Bundeladdrequest == null)
+            if (Bundeladdrequest == null)
             {
                 _logger.LogError("BundleAddRequest is null");
                 throw new ArgumentNullException(nameof(Bundeladdrequest));
             }
-            if(string.IsNullOrEmpty(Bundeladdrequest.Name))
-                {
+            if (string.IsNullOrEmpty(Bundeladdrequest.Name))
+            {
                 _logger.LogError("Bundle name is null or empty");
                 throw new ArgumentException("Bundle name is required", nameof(Bundeladdrequest.Name));
             }
             ValidationHelper.ValidateModel(Bundeladdrequest);
             var existingBundle = await _BundleRepository.GetByAsync(b => b.Name == Bundeladdrequest.Name);
-            if(existingBundle != null)
+            if (existingBundle != null)
             {
                 _logger.LogError("Bundle with name {BundleName} already exists", Bundeladdrequest.Name);
                 throw new InvalidOperationException($"Bundle with name {Bundeladdrequest.Name} already exists");
@@ -60,15 +60,15 @@ namespace solidhardware.storeCore.Service
                     var bundleEntity = _mapper.Map<Bundle>(Bundeladdrequest);
                     bundleEntity.Id = Guid.NewGuid();
 
-                    if(bundleEntity.BundleItems != null && bundleEntity.BundleItems.Count > 0)
+                    if (bundleEntity.BundleItems != null && bundleEntity.BundleItems.Count > 0)
                     {
-                     var BundleItems = Bundeladdrequest.BundleItems.Select(Bi=>
-                     {
-                         var bundleItemEntity = _mapper.Map<BundleItem>(Bi);
+                        var BundleItems = Bundeladdrequest.BundleItems.Select(Bi =>
+                        {
+                            var bundleItemEntity = _mapper.Map<BundleItem>(Bi);
                             bundleItemEntity.Id = Guid.NewGuid();
                             bundleItemEntity.BundleId = bundleEntity.Id;
                             return bundleItemEntity;
-                     }).ToList();
+                        }).ToList();
                         bundleEntity.BundleItems = BundleItems;
 
                     }
@@ -91,31 +91,31 @@ namespace solidhardware.storeCore.Service
 
         }
 
-        public async  Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-             _logger.LogInformation("Deleting bundle with id {BundleId}", id);
-            var bundleEntity = await _unitOfWork.Repository<Bundle>().GetByAsync(x=>x.Id==id);
+            _logger.LogInformation("Deleting bundle with id {BundleId}", id);
+            var bundleEntity = await _unitOfWork.Repository<Bundle>().GetByAsync(x => x.Id == id);
             if (bundleEntity == null)
             {
                 _logger.LogError("Bundle with id {BundleId} not found", id);
                 return false;
             }
-           var result= await _unitOfWork.Repository<Bundle>().DeleteAsync(bundleEntity);
-            if(!result)
+            var result = await _unitOfWork.Repository<Bundle>().DeleteAsync(bundleEntity);
+            if (!result)
             {
-               _logger.LogError("Failed to delete bundle with id {BundleId}", id);
+                _logger.LogError("Failed to delete bundle with id {BundleId}", id);
                 return false;
             }
-          
+
             _logger.LogInformation("Bundle with id {BundleId} deleted successfully", id);
             return true;
 
         }
 
-        public  async Task<IEnumerable<BundleResponse>> GetAllAsync(int pageIndex = 1, int pageSize = 10)
+        public async Task<IEnumerable<BundleResponse>> GetAllAsync(int pageIndex = 1, int pageSize = 10)
         {
-           _logger.LogInformation( "Fetching all bundles");
-            var bundles = await _unitOfWork.Repository<Bundle>().GetAllAsync(pageIndex: pageIndex, pageSize: pageSize,includeProperties: "BundleItems.Product");
+            _logger.LogInformation("Fetching all bundles");
+            var bundles = await _unitOfWork.Repository<Bundle>().GetAllAsync(pageIndex: pageIndex, pageSize: pageSize, includeProperties: "BundleItems.Product");
             if (bundles == null || !bundles.Any())
             {
                 _logger.LogInformation("No bundles found");
@@ -125,14 +125,14 @@ namespace solidhardware.storeCore.Service
             _logger.LogInformation("Fetched {BundleCount} bundles", bundles.Count());
             _logger.LogInformation("bundles retrieved successfully");
 
-           return _mapper.Map<IEnumerable<BundleResponse>>(bundles);
-          
+            return _mapper.Map<IEnumerable<BundleResponse>>(bundles);
+
         }
 
-        public  async Task<BundleResponse?> GetAsync(Expression<Func<Bundle, bool>> predicate, bool IsTracked = true)
-        {  
-       
-         _logger.LogInformation("Fetching bundle with specified predicate");
+        public async Task<BundleResponse?> GetAsync(Expression<Func<Bundle, bool>> predicate, bool IsTracked = true)
+        {
+
+            _logger.LogInformation("Fetching bundle with specified predicate");
 
             var bundles = await _unitOfWork.Repository<Bundle>().GetByAsync(
            predicate, IsTracked, includeProperties: "BundleItems.Product");
@@ -170,10 +170,10 @@ namespace solidhardware.storeCore.Service
             {
                 try
                 {
-   
+
                     _mapper.Map(bundleupdaterequest, bundle);
 
-   
+
                     if (bundleupdaterequest.BundleItems != null)
                     {
                         foreach (var itemDto in bundleupdaterequest.BundleItems)
@@ -183,7 +183,7 @@ namespace solidhardware.storeCore.Service
 
                             if (existingItem == null)
                             {
-                              
+
                                 var newItem = _mapper.Map<BundleItem>(itemDto);
                                 newItem.Id = Guid.NewGuid();
                                 newItem.BundleId = bundle.Id;
@@ -191,7 +191,7 @@ namespace solidhardware.storeCore.Service
                             }
                             else
                             {
-                          
+
                                 _mapper.Map(itemDto, existingItem);
                             }
                         }

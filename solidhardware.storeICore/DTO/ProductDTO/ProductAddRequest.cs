@@ -17,7 +17,7 @@ namespace solidhardware.storeCore.DTO.ProductDTO
         public string? Description { get; set; }
 
        [Required(ErrorMessage = "Brand can't be blank")]
-        public string Brand { get; set; }
+        public Guid Brand { get; set; }
 
         [Required(ErrorMessage = "Price is required")]
         [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than zero")]

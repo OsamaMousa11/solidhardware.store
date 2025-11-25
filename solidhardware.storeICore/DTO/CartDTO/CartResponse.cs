@@ -13,8 +13,9 @@ namespace solidhardware.storeCore.DTO.CartDTO
         public Guid UserId { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        public List<CartItemResponse> CartItems { get; set; }
+
         public int TotalItems { get; set; }
         public decimal TotalPrice { get; set; }
+        public List<CartItemResponse> Items { get; set; }
     }
 }

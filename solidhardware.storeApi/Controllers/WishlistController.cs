@@ -1,16 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-
+using solidhardware.storeCore.DTO;
 using solidhardware.storeCore.DTO.WishListDTO;
-using solidhardware.storeCore.Service;
 using solidhardware.storeCore.ServiceContract;
-using System;
-using System.Threading.Tasks;
+using System.Net;
+using System.Security.Claims;
 
 namespace solidhardware.storeApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize] // المستخدم لازم يكون عامل Login
     public class WishlistController : ControllerBase
     {
         private readonly IWishListService _wishlistService;
@@ -22,122 +23,234 @@ namespace solidhardware.storeApi.Controllers
             _logger = logger;
         }
 
-        /// <summary>
-        /// Get or create wishlist for a user
-        /// </summary>
-        [HttpGet("user/{userId}")]
-        public async Task<IActionResult> GetOrCreateWishlist(Guid userId)
+        // Helper: نجيب userId من التوكن
+        private Guid GetUserId()
         {
-            if (userId == Guid.Empty)
-            {
-                _logger.LogWarning("Invalid user ID provided for GetOrCreateWishlist");
-                return BadRequest("Invalid user ID.");
-            }
-
-            _logger.LogInformation("Getting or creating wishlist for user {UserId}", userId);
-
-            var wishlist = await _wishlistService.GetOrCreateWishlistAsync(userId);
-
-            _logger.LogInformation("Wishlist retrieved successfully for user {UserId}", userId);
-            return Ok(wishlist);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return Guid.Parse(userId);
         }
 
-        /// <summary>
-        /// Add a product to wishlist
-        /// </summary>
+
+        // ------------------------------------------------------------
+        // GET OR CREATE WISHLIST
+        // ------------------------------------------------------------
+        [HttpGet("get")]
+        public async Task<ActionResult<ApiResponse>> GetOrCreateWishlist()
+        {
+            try
+            {
+                var userId = GetUserId();
+                _logger.LogInformation("GetOrCreateWishlist called by {UserId}", userId);
+
+                var wishlist = await _wishlistService.GetOrCreateAsync(userId);
+
+                return Ok(new ApiResponse
+                {
+                    IsSuccess = true,
+                    Messages = "Wishlist retrieved successfully",
+                    Result = wishlist,
+                    StatusCode = HttpStatusCode.OK
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetOrCreateWishlist");
+                return StatusCode(500, new ApiResponse
+                {
+                    IsSuccess = false,
+                    Messages = "Error retrieving wishlist",
+                    StatusCode = HttpStatusCode.InternalServerError
+                });
+            }
+        }
+
+
+
+        // ------------------------------------------------------------
+        // ADD ITEM
+        // ------------------------------------------------------------
         [HttpPost("add")]
-        public async Task<IActionResult> AddToWishlist([FromBody] WishListAddRequest request)
+        public async Task<ActionResult<ApiResponse>> AddToWishlist([FromBody] WishListAddRequest request)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                _logger.LogWarning("Invalid model state for AddToWishlist: {@Request}", request);
-                return BadRequest(ModelState);
+                var userId = GetUserId();
+
+                if (request == null || request.ProductId == Guid.Empty)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        IsSuccess = false,
+                        Messages = "Invalid request.",
+                        StatusCode = HttpStatusCode.BadRequest
+                    });
+                }
+
+                _logger.LogInformation("Adding product {ProductId} to wishlist for {UserId}",
+                    request.ProductId, userId);
+
+                var wishlist = await _wishlistService.AddItemAsync(userId, request.ProductId);
+
+                return Ok(new ApiResponse
+                {
+                    IsSuccess = true,
+                    Messages = "Product added to wishlist",
+                    Result = wishlist,
+                    StatusCode = HttpStatusCode.OK
+                });
             }
+            catch (InvalidOperationException ex) // لو المنتج موجود قبل كده
+            {
+                _logger.LogWarning(ex, "AddToWishlist warning");
 
-            _logger.LogInformation("Adding product {ProductId} to wishlist for user {UserId}", request.ProductId, request.UserId);
+                return BadRequest(new ApiResponse
+                {
+                    IsSuccess = false,
+                    Messages = ex.Message,
+                    StatusCode = HttpStatusCode.BadRequest
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in AddToWishlist");
 
-            var updatedWishlist = await _wishlistService.AddItemAsync(request.UserId, request.ProductId);
-
-            _logger.LogInformation("Product {ProductId} added to wishlist for user {UserId}", request.ProductId, request.UserId);
-            return Ok(updatedWishlist);
+                return StatusCode(500, new ApiResponse
+                {
+                    IsSuccess = false,
+                    Messages = "Error adding product to wishlist",
+                    StatusCode = HttpStatusCode.InternalServerError
+                });
+            }
         }
 
-        /// <summary>
-        /// Remove product from wishlist
-        /// </summary>
-        [HttpDelete("remove")]
-        public async Task<IActionResult> RemoveFromWishlist([FromQuery] Guid userId, [FromQuery] Guid productId)
+
+
+        // ------------------------------------------------------------
+        // REMOVE ITEM
+        // ------------------------------------------------------------
+        [HttpDelete("remove/{productId}")]
+        public async Task<ActionResult<ApiResponse>> RemoveFromWishlist(Guid productId)
         {
-            if (userId == Guid.Empty || productId == Guid.Empty)
+            try
             {
-                _logger.LogWarning("Invalid parameters for RemoveFromWishlist. userId={UserId}, productId={ProductId}", userId, productId);
-                return BadRequest("Invalid parameters.");
+                var userId = GetUserId();
+
+                if (productId == Guid.Empty)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        IsSuccess = false,
+                        Messages = "Invalid productId",
+                        StatusCode = HttpStatusCode.BadRequest
+                    });
+                }
+
+                _logger.LogInformation("Removing product {ProductId} from wishlist for {UserId}",
+                    productId, userId);
+
+                var result = await _wishlistService.RemoveItemAsync(userId, productId);
+
+                if (!result)
+                {
+                    return NotFound(new ApiResponse
+                    {
+                        IsSuccess = false,
+                        Messages = "Product not found in wishlist",
+                        StatusCode = HttpStatusCode.NotFound
+                    });
+                }
+
+                return Ok(new ApiResponse
+                {
+                    IsSuccess = true,
+                    Messages = "Product removed from wishlist",
+                    Result = null,
+                    StatusCode = HttpStatusCode.OK
+                });
             }
-
-            _logger.LogInformation("Removing product {ProductId} from wishlist for user {UserId}", productId, userId);
-
-            var result = await _wishlistService.RemoveItemAsync(userId, productId);
-            if (!result)
+            catch (Exception ex)
             {
-                _logger.LogWarning("Product {ProductId} not found in wishlist for user {UserId}", productId, userId);
-                return NotFound("Product not found in wishlist.");
-            }
+                _logger.LogError(ex, "Error in RemoveFromWishlist");
 
-            _logger.LogInformation("Product {ProductId} removed successfully from wishlist for user {UserId}", productId, userId);
-            return Ok("Product removed from wishlist.");
+                return StatusCode(500, new ApiResponse
+                {
+                    IsSuccess = false,
+                    Messages = "Error removing product from wishlist",
+                    StatusCode = HttpStatusCode.InternalServerError
+                });
+            }
         }
 
-        /// <summary>
-        /// Clear all items from wishlist
-        /// </summary>
-        [HttpDelete("clear/{userId}")]
-        public async Task<IActionResult> ClearWishlist(Guid userId)
+
+
+        // ------------------------------------------------------------
+        // CLEAR WISHLIST
+        // ------------------------------------------------------------
+        [HttpDelete("clear")]
+        public async Task<ActionResult<ApiResponse>> ClearWishlist()
         {
-            if (userId == Guid.Empty)
+            try
             {
-                _logger.LogWarning("Invalid user ID provided for ClearWishlist");
-                return BadRequest("Invalid user ID.");
+                var userId = GetUserId();
+
+                _logger.LogInformation("Clearing wishlist for {UserId}", userId);
+
+                await _wishlistService.ClearAsync(userId);
+
+                return Ok(new ApiResponse
+                {
+                    IsSuccess = true,
+                    Messages = "Wishlist cleared successfully",
+                    StatusCode = HttpStatusCode.OK
+                });
             }
-
-            _logger.LogInformation("Clearing wishlist for user {UserId}", userId);
-
-            var result = await _wishlistService.ClearUserWishlistAsync(userId);
-            if (!result)
+            catch (Exception ex)
             {
-                _logger.LogWarning("Wishlist not found for user {UserId}", userId);
-                return NotFound("Wishlist not found.");
-            }
+                _logger.LogError(ex, "Error in ClearWishlist");
 
-            _logger.LogInformation("Wishlist cleared successfully for user {UserId}", userId);
-            return Ok("Wishlist cleared successfully.");
+                return StatusCode(500, new ApiResponse
+                {
+                    IsSuccess = false,
+                    Messages = "Error clearing wishlist",
+                    StatusCode = HttpStatusCode.InternalServerError
+                });
+            }
         }
 
-        /// <summary>
-        /// Get all items in wishlist
-        /// </summary>
-        [HttpGet("{userId}/items")]
-        public async Task<IActionResult> GetWishlistItems(Guid userId)
+
+        // ------------------------------------------------------------
+        // GET ALL ITEMS
+        // ------------------------------------------------------------
+        [HttpGet("items")]
+        public async Task<ActionResult<ApiResponse>> GetWishlistItems()
         {
-            if (userId == Guid.Empty)
+            try
             {
-                _logger.LogWarning("Invalid user ID provided for GetWishlistItems");
-                return BadRequest("Invalid user ID.");
+                var userId = GetUserId();
+
+                _logger.LogInformation("Getting wishlist items for {UserId}", userId);
+
+                var wishlist = await _wishlistService.GetByUserIdAsync(userId);
+
+                return Ok(new ApiResponse
+                {
+                    IsSuccess = true,
+                    Messages = "Wishlist items retrieved successfully",
+                    Result = wishlist,
+                    StatusCode = HttpStatusCode.OK
+                });
             }
-
-            _logger.LogInformation("Fetching wishlist items for user {UserId}", userId);
-
-            var wishlist = await _wishlistService.GetWishlistByUserIdAsync(userId);
-            if (wishlist == null)
+            catch (Exception ex)
             {
-                _logger.LogWarning("Wishlist not found for user {UserId}", userId);
-                return NotFound("Wishlist not found.");
-            }
+                _logger.LogError(ex, "Error in GetWishlistItems");
 
-            _logger.LogInformation("Wishlist items fetched successfully for user {UserId}", userId);
-            return Ok(wishlist);
+                return StatusCode(500, new ApiResponse
+                {
+                    IsSuccess = false,
+                    Messages = "Error fetching wishlist items",
+                    StatusCode = HttpStatusCode.InternalServerError
+                });
+            }
         }
-
-     
-     
     }
 }

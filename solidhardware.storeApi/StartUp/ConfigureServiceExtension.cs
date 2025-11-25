@@ -91,12 +91,16 @@ namespace solidhardware.storeApi.StartUp
             Services.AddScoped<IBundleService, BundleService>();
             Services.AddScoped<ICartRepository, CartRepository>();
             Services.AddScoped<ICartService, CartService>();
+            Services.AddScoped<IOrderRepository, OrderRepository>();
+            Services.AddScoped<IOrderService, OrderService>();
+            Services.AddScoped<IWishListRepository, WishListRepository>();
+            Services.AddScoped<IWishListService, WishlistService>();
 
 
 
 
 
-            Services.AddControllers()
+          Services.AddControllers()
      .AddJsonOptions(options =>
      {
          options.JsonSerializerOptions.ReferenceHandler =
@@ -114,7 +118,7 @@ namespace solidhardware.storeApi.StartUp
                     Description = "SolidHardware Store API"
                 });
 
-           /*
+           
                 c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -138,7 +142,7 @@ namespace solidhardware.storeApi.StartUp
             },
             new string[] {}
         }
-    });*/
+    });
             });
 
 

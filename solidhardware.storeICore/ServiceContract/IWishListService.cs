@@ -9,18 +9,11 @@ namespace solidhardware.storeCore.ServiceContract
 {
     public interface IWishListService
     {
-        Task<WishListResponse> GetByIdAsync(Guid wishlistId); 
-        Task<WishListResponse> GetWishlistByUserIdAsync(Guid userId); 
-
-        Task<WishListResponse> GetOrCreateWishlistAsync(Guid userId);
-        Task<bool> ClearUserWishlistAsync(Guid userId);
-
-        Task<WishListResponse> AddWishlistAsync(WishListAddRequest request);
+        Task<WishListResponse> GetOrCreateAsync(Guid userId);
         Task<WishListResponse> AddItemAsync(Guid userId, Guid productId);
-        Task<bool> RemoveItemAsync(Guid userId, Guid wishlistItemId);
-        Task<bool> IsProductInWishlistAsync(Guid userId, Guid productId);
-
-        Task<bool> MoveItemToCartAsync(Guid userId, Guid wishlistItemId, int quantity);
-        Task<bool> MoveAllToCartAsync(Guid userId);
+        Task<bool> RemoveItemAsync(Guid userId, Guid productId);
+        Task<bool> ClearAsync(Guid userId);
+        Task<WishListResponse> GetByUserIdAsync(Guid userId);
+        Task<bool> IsInWishlistAsync(Guid userId, Guid productId);
     }
 }

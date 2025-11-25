@@ -12,7 +12,7 @@ using solidhardware.storeinfrastraction.Data;
 namespace solidhardware.storeinfrastraction.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251105034209_init")]
+    [Migration("20251121205752_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -276,14 +276,20 @@ namespace solidhardware.storeinfrastraction.Migrations
 
             modelBuilder.Entity("solidhardware.storeCore.Domain.Entites.OrderItem", b =>
                 {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 

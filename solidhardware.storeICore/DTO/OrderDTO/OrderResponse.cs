@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace solidhardware.storeCore.DTO.OrderDTO
 {
-    internal class OrderResponse
+    public class OrderResponse
     {
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
@@ -18,8 +18,6 @@ namespace solidhardware.storeCore.DTO.OrderDTO
         public string? Country { get; set; }
         public string? Phone { get; set; }
 
-        public List<OrderItemResponse>? OrderItems { get; set; } = new();
-
-        public int TotalItems => OrderItems?.Sum(i => i.Quantity) ?? 0;
+        public List<OrderItemResponse> Items { get; set; }
     }
 }

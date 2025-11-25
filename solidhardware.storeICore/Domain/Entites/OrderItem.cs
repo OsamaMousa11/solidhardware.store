@@ -10,23 +10,17 @@ namespace solidhardware.storeCore.Domain.Entites
 {
     public class OrderItem
     {
-        [Required]
-        public Guid UserId { get; set; }
+        public Guid Id { get; set; }
 
-        public DateTime OrderDate { get; set; } = DateTime.UtcNow;
+        public Guid OrderId { get; set; }
+        public Order Order { get; set; }
 
-        [Range(0, double.MaxValue, ErrorMessage = "Total amount must be positive")]
-        public decimal TotalAmount { get; set; }
+        public Guid ProductId { get; set; }
+        public Product Product { get; set; }
 
-        [MaxLength(100)]
-        public string? City { get; set; }
+        public int Quantity { get; set; }
+        public decimal UnitPrice { get; set; }
 
-        [MaxLength(100)]
-        public string? Country { get; set; }
-
-        [Phone]
-        public string? Phone { get; set; }
-
-        public ICollection<OrderItemUpdateRequest>? OrderItems { get; set; }
+        public decimal SubTotal => Quantity * UnitPrice;
     }
 }

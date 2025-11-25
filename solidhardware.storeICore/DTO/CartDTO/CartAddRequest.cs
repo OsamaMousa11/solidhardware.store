@@ -20,6 +20,6 @@ namespace solidhardware.storeCore.DTO.CartDTO
         [Range(1, 100, ErrorMessage = "Quantity must be between 1 and 100")]
         public int Quantity { get; set; } = 1;
 
-        public ICollection<CartItemAddRequest>? cartitemAddRequest { get; set; }
+
     }
 }

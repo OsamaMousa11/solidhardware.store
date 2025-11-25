@@ -10,8 +10,10 @@ namespace solidhardware.storeCore.DTO.WishListDTO
     {
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
+        public List<WishListItemResponse> Items { get; set; }
 
-        public ICollection<WishlistItemResponse>? WishlistItems { get; set; }
+
+
 
     }
 }
