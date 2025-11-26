@@ -69,7 +69,8 @@ This project follows modern, scalable architectural patterns:
 
 # 🛒 Cart Endpoints (User Only)
 
-
+| Method | Endpoint | Description |
+|--------|----------|-------------|
 | GET | `/api/Cart` | Get logged-in user's cart |
 | GET | `/api/Cart/user/{userId}` | (Admin) Get cart for any user |
 | POST | `/api/Cart/add` | Add or update item |
@@ -84,7 +85,8 @@ This project follows modern, scalable architectural patterns:
 
 # 🗂️ Category Endpoints
 
-
+| Method | Endpoint | Description |
+|--------|----------|-------------|
 | GET | `/api/Category/GetAllCategory` | Get all categories |
 | GET | `/api/Category/GetCategoryById/{id}` | Get category |
 | POST | `/api/Category/CreateCategory` | Create category (Admin) |
@@ -95,7 +97,8 @@ This project follows modern, scalable architectural patterns:
 
 # 🧾 Order Endpoints
 
-
+| Method | Endpoint | Description |
+|--------|----------|-------------|
 | POST | `/api/Order/create` | Create new order |
 | PUT | `/api/Order/update` | Update order (Admin) |
 | DELETE | `/api/Order/delete/{orderId}` | Delete order (Admin) |
@@ -162,5 +165,7 @@ All endpoints are fully testable using **Swagger UI**, including:
 - Role-based endpoints  
 - Model validation  
 - Anonymous wishlist behavior  
+
+---
 
 
