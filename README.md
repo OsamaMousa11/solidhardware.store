@@ -1,6 +1,5 @@
 # solidhardware.store
 
-# 🛒 E-Commerce Store API
 
 ## 📘 Overview
 E-Commerce Store API is a complete backend system built using **ASP.NET Core Web API**, designed to power a full e-commerce platform.  
