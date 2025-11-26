@@ -1,253 +1,166 @@
-# solidhardware.store
+# 🚀 SolidHardware Store API
 
+A full-featured **E-Commerce Web API** built using **ASP.NET Core**, implementing clean architecture principles, user authentication, authorization, product management, shopping cart, wishlist, orders, bundles, and category management.
 
-## 📘 Overview
-E-Commerce Store API is a complete backend system built using **ASP.NET Core Web API**, designed to power a full e-commerce platform.  
-The API includes user authentication, product management, categories, bundles, shopping cart, wishlist, and order processing.
-
-The architecture follows **Clean Architecture**, **Onion Architecture**, and **N-Tier** principles to ensure maintainability, scalability, and clean separation of concerns.
+This API supports both **guest users** (Wishlist only) and **authenticated users**, including admin-level operations.
 
 ---
 
-# 🔧 Technologies Used
+## 🛠️ Technologies Used
 
-- **ASP.NET Core Web API**
-- **Entity Framework Core**
-- **SQL Server**
-- **ASP.NET Identity**
-- **JWT + Refresh Tokens**
-- **LINQ**
-- **AutoMapper**
-- **Serilog Logging**
+- ASP.NET Core Web API  
+- Entity Framework Core  
+- SQL Server  
+- ASP.NET Identity (JWT + Refresh Token)  
+- Fluent Validation + Validation Helper  
+- Generic Repository Pattern  
+- Unit of Work Pattern  
+- LINQ  
+- AutoMapper  
+- Serilog Logging  
+
+---
+
+## 📐 Architecture
+
+This project follows modern, scalable architectural patterns:
+
+- **Clean Architecture**
+- **Onion Architecture**
+- **N-Tier Layering**
+- **SOLID Principles**
 - **Repository Pattern**
 - **Unit of Work Pattern**
-- **Dependency Injection**
-- **Clean Architecture / Onion Architecture**
+- **DTO Mapping Approach**
 
 ---
 
-# 🧱 Architecture
+# 🔐 Authentication (Account Endpoints)
 
-### ✔ Clean Architecture  
-- API (Controllers)  
-- Application Layer (Services, DTOs)  
-- Domain Layer (Entities)  
-- Infrastructure Layer (EF Core, Repositories)
-
-### ✔ Repository + Unit of Work  
-- Centralized transaction management  
-- Reusable data access  
-- Cleaner services logic  
-
----
-
-# ⭐ Features
-
-### 🔐 Authentication & Authorization
-- Register  
-- Login  
-- JWT authentication  
-- Refresh tokens  
-- Token revocation  
-- Roles (ADMIN / USER)  
-- Forgot / Reset password  
-- User management  
+| Method | Endpoint | Description |
+|-------|----------|-------------|
+| POST | `/api/Account/register` | Register a new user |
+| POST | `/api/Account/login` | Login + JWT + Refresh Token |
+| GET | `/api/Account/refresh-token` | Issue a new access token |
+| POST | `/api/Account/revoke-token` | Revoke a refresh token |
+| POST | `/api/Account/forgot-password` | Send reset email |
+| POST | `/api/Account/reset-password` | Reset password |
+| POST | `/api/Account/add-role` | Add role to user |
+| GET | `/api/Account/roles` | List all roles |
+| DELETE | `/api/Account/roles/{roleName}` | Delete a role |
+| GET | `/api/Account/users` | Get all users |
+| GET | `/api/Account/users/{id}` | Get user by id |
+| DELETE | `/api/Account/users/{id}` | Delete user |
+| PUT | `/api/Account/update/{id}` | Update user |
 
 ---
 
-### 🛍 Product Management
-- Add / update / delete products (Admin)  
-- Get product by ID  
-- Get all products (pagination)  
-- Search by name  
-- Filter by category  
+# 📦 Bundle Endpoints (User Only)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/Bundle` | Create a bundle |
+| GET | `/api/Bundle` | Get all bundles (Public) |
+| GET | `/api/Bundle/{id}` | Get a bundle by ID |
+| PUT | `/api/Bundle` | Update bundle |
+| DELETE | `/api/Bundle/{id}` | Delete bundle |
 
 ---
 
-### 🗂 Category Management
-- Public: get all / get by ID  
-- Admin: create, update, delete  
+# 🛒 Cart Endpoints (User Only)
+
+
+| GET | `/api/Cart` | Get logged-in user's cart |
+| GET | `/api/Cart/user/{userId}` | (Admin) Get cart for any user |
+| POST | `/api/Cart/add` | Add or update item |
+| PUT | `/api/Cart/update` | Update quantity |
+| DELETE | `/api/Cart/remove/{productId}` | Remove item |
+| DELETE | `/api/Cart/clear` | Clear cart |
+| GET | `/api/Cart/contains/{productId}` | Product exists in cart? |
+| GET | `/api/Cart/count` | Cart item count |
+| GET | `/api/Cart/subtotal` | Cart subtotal |
 
 ---
 
-### 🎁 Bundle Management (ADMIN ONLY)
-- Create bundle  
-- Edit bundle  
-- Delete bundle  
-- Bundle items (with product references)  
-- Auto mapping with product data  
+# 🗂️ Category Endpoints
+
+
+| GET | `/api/Category/GetAllCategory` | Get all categories |
+| GET | `/api/Category/GetCategoryById/{id}` | Get category |
+| POST | `/api/Category/CreateCategory` | Create category (Admin) |
+| DELETE | `/api/Category/DeleteCategory/{id}` | Delete category (Admin) |
+| PUT | `/api/Category/UpdateCategory` | Update category (Admin) |
 
 ---
 
-### 🛒 Shopping Cart
-- Add item  
-- Update quantity  
-- Remove item  
-- Clear cart  
-- Check if product exists  
-- Count items  
-- Calculate subtotal  
-- Sync product name + price automatically  
+# 🧾 Order Endpoints
+
+
+| POST | `/api/Order/create` | Create new order |
+| PUT | `/api/Order/update` | Update order (Admin) |
+| DELETE | `/api/Order/delete/{orderId}` | Delete order (Admin) |
+| GET | `/api/Order/{orderId}` | Get order (Owner/Admin) |
+| GET | `/api/Order/my-orders` | Get logged-in user's orders |
+| GET | `/api/Order/user/{userId}` | (Admin) Get any user's orders |
 
 ---
 
-### ❤️ Wishlist
-- Add  
-- Remove  
-- Clear  
-- Get wishlist  
-- Prevent duplicates  
-- Includes product details via navigation property  
+# 🛍️ Product Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/Product/CreateProduct` | Create product |
+| GET | `/api/Product/GetProductById/{id}` | Get product |
+| GET | `/api/Product/GetAllProducts` | List all products |
+| DELETE | `/api/Product/DeleteProduct/{id}` | Delete product |
+| GET | `/api/Product/GetProductsByCategory/{categoryId}` | Filter by category |
+| GET | `/api/Product/SearchProducts` | Search products |
+| PUT | `/api/Product/UpdateProduct` | Update product |
 
 ---
 
-### 📦 Orders
-- Create order  
-- Update order  
-- Delete order  
-- Get order by ID  
-- Get all orders for a user  
-- **Total price auto-calculated**  
-- OrderItems store **product price snapshot** for history integrity  
+# ❤️ Wishlist Endpoints (Guest + User)
+
+Supports **anonymous users via cookie** + **authenticated users**.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/wishlist` | Get wishlist (auto-create) |
+| POST | `/api/wishlist/{productId}` | Add item |
+| DELETE | `/api/wishlist/{productId}` | Remove item |
+| DELETE | `/api/wishlist/clear` | Clear wishlist |
+| GET | `/api/wishlist/in-wishlist/{productId}` | Exists in wishlist? |
 
 ---
 
-# 🔒 Role Permissions
+# 📑 Schemas
 
-| Role | Permissions |
-|------|-------------|
-| USER | Cart, wishlist, orders, view products |
-| ADMIN | Manage products, categories, bundles, users |
+The project includes all necessary DTOs:
 
----
-
-# 📡 Real-Time Logging (Optional)
-Supports **Serilog** for structured logs:
-- Error logs  
-- Request logs  
-- Business events  
-
----
-
-# 📌 API Endpoints
-
----
-
-## 🔐 **Account**
-```
-POST   /api/Account/register
-POST   /api/Account/login
-GET    /api/Account/refresh-token
-POST   /api/Account/revoke-token
-POST   /api/Account/forgot-password
-POST   /api/Account/reset-password
-POST   /api/Account/add-role
-GET    /api/Account/roles
-DELETE /api/Account/roles/{roleName}
-GET    /api/Account/users
-GET    /api/Account/users/{id}
-PUT    /api/Account/update/{id}
-DELETE /api/Account/users/{id}
-```
+- RegisterDTO  
+- LoginDTO  
+- OrderAddRequest  
+- OrderUpdateRequest  
+- ProductAddRequest  
+- ProductUpdateRequest  
+- CategoryAddRequest  
+- CategoryUpdateRequest  
+- CartAddRequest  
+- CartUpdateRequest  
+- BundleAddRequest  
+- BundleUpdateRequest  
+- WishListAddRequest  
+- **ApiResponse (Global Response Wrapper)**
 
 ---
 
-## 🗂 **Category**
-```
-GET    /api/Category/GetAllCategory
-GET    /api/Category/GetCategoryById/{id}
-POST   /api/Category/CreateCategory          (ADMIN)
-PUT    /api/Category/UpdateCategory          (ADMIN)
-DELETE /api/Category/DeleteCategory/{id}     (ADMIN)
-```
+# 🧪 Testing
 
----
+All endpoints are fully testable using **Swagger UI**, including:
 
-## 🛍 **Product**
-```
-POST   /api/Product/CreateProduct            (ADMIN)
-GET    /api/Product/GetProductById/{id}
-GET    /api/Product/GetAllProducts
-GET    /api/Product/GetProductsByCategory/{id}
-GET    /api/Product/SearchProducts?searchTerm=
-PUT    /api/Product/UpdateProduct            (ADMIN)
-DELETE /api/Product/DeleteProduct/{id}       (ADMIN)
-```
-
----
-
-## 🎁 **Bundle**
-```
-POST   /api/Bundle/CreateBundle
-PUT    /api/Bundle/UpdateBundle
-DELETE /api/Bundle/DeleteBundle/{id}
-GET    /api/Bundle/GetBundleById/{id}
-GET    /api/Bundle/GetAllBundles
-```
-
----
-
-## 🛒 **Cart**
-```
-GET    /api/Cart/{userId}
-POST   /api/Cart/add
-POST   /api/Cart/update
-DELETE /api/Cart/remove/{userId}/{productId}
-DELETE /api/Cart/clear/{userId}
-GET    /api/Cart/contains/{userId}/{productId}
-GET    /api/Cart/count/{userId}
-GET    /api/Cart/subtotal/{userId}
-```
-
----
-
-## ❤️ **Wishlist**
-```
-GET    /api/Wishlist/user/{userId}
-POST   /api/Wishlist/add
-DELETE /api/Wishlist/remove?userId=&productId=
-DELETE /api/Wishlist/clear/{userId}
-GET    /api/Wishlist/{userId}/items
-```
-
----
-
-## 📦 **Order**
-```
-POST   /api/Order/create
-PUT    /api/Order/update
-DELETE /api/Order/delete/{orderId}
-GET    /api/Order/{orderId}
-GET    /api/Order/user/{userId}
-```
-
----
-
-# 🧪 Testing & Tools
-
-You can test all endpoints using:
-
-- Swagger UI (built-in)
-- Postman
-- Thunder Client (VS Code)
-- Curl
-
-Authentication requires sending:
-
-```
-Authorization: Bearer <your_token_here>
-```
-
----
-
-# 🧑‍💻 Developer Notes
-
-- AutoMapper is used to map entities → DTOs  
-- UnitOfWork ensures safe DB transactions  
-- All CRUD operations implemented using Generic Repository  
-- Order totals & cart subtotal calculated in backend only  
-- Wishlist prevents duplicate product entries  
-- Roles enforced using `[Authorize(Roles = "ADMIN")]`  
+- JWT Authentication  
+- Role-based endpoints  
+- Model validation  
+- Anonymous wishlist behavior  
 
 
-وهظبطه لك 🔥🔥
