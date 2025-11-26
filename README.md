@@ -266,5 +266,5 @@ If you want:
 ✔ Database ERD Diagram  
 ✔ How to install / clone the project  
 
-Just قلّي: **“كمّل الـ README بباجز وشغل جامد”**  
+
 وهظبطه لك 🔥🔥
