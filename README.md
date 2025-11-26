@@ -249,21 +249,5 @@ Authorization: Bearer <your_token_here>
 - Wishlist prevents duplicate product entries  
 - Roles enforced using `[Authorize(Roles = "ADMIN")]`  
 
----
-
-# 📄 License
-This project is open-source.  
-Feel free to fork, modify, and use it.
-
----
-
-# ⭐ Final Notes
-
-If you want:
-✔ Badges (Build | NuGet | License | Tech logo badges)  
-✔ Screenshots  
-✔ Database ERD Diagram  
-✔ How to install / clone the project  
-
 
 وهظبطه لك 🔥🔥
