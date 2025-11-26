@@ -157,15 +157,4 @@ The project includes all necessary DTOs:
 
 ---
 
-# 🧪 Testing
-
-All endpoints are fully testable using **Swagger UI**, including:
-
-- JWT Authentication  
-- Role-based endpoints  
-- Model validation  
-- Anonymous wishlist behavior  
-
----
-
 
