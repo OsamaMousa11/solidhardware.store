@@ -157,5 +157,6 @@ The project includes all necessary DTOs:
 
 ---
 
-<img width="836" height="781" alt="image" src="https://github.com/user-attachments/assets/9592fe93-e6ce-4423-ab79-f6e2ab075564" />
+<img width="741" height="765" alt="image" src="https://github.com/user-attachments/assets/d47dec63-a192-45e5-816c-81eb32d86e1c" />
+
 
